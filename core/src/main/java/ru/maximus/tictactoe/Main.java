@@ -2,10 +2,7 @@ package ru.maximus.tictactoe;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Net;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.net.Socket;
-import com.badlogic.gdx.net.SocketHints;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -16,7 +13,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
-import java.io.IOException;
+import java.net.URISyntaxException;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends Game {
@@ -26,8 +27,24 @@ public class Main extends Game {
 
     TextField textMessage;
 
+    Socket socket;
+
     @Override
     public void create() {
+        try {
+            socket = IO.socket("http://192.168.1.44:7777");
+            socket.connect();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                System.out.println("connect");
+            }
+        });
+
+
         stage = new Stage(new FitViewport(640, 480));
         skin = new Skin(Gdx.files.internal("ui/skin.json"));
 
@@ -40,24 +57,7 @@ public class Main extends Game {
         button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
 
-                String textToSend;
-                if(textMessage.getText().length() == 0)
-                    textToSend = "Doesn't say much but likes clicking buttons\n";
-                else
-                    textToSend = textMessage.getText() + ("\n"); // Brute for a newline so readline gets a line
-
-                SocketHints socketHints = new SocketHints();
-                socketHints.connectTimeout = 500;
-                Socket socket = Gdx.net.newClientSocket(Net.Protocol.TCP, "localhost", 7777, socketHints);
-
-                try {
-                    // write our entered message to the stream
-                    socket.getOutputStream().write(textToSend.getBytes());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         });
         window.add(button);
@@ -75,6 +75,7 @@ public class Main extends Game {
     public void render() {
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
     }

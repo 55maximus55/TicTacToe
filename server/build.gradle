@@ -8,6 +8,7 @@ dependencies {
   implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  implementation group: 'com.corundumstudio.socketio', name: 'netty-socketio', version: '1.7.16'
   implementation project(':shared')
 }
 

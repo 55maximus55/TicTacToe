@@ -18,6 +18,7 @@ dependencies {
   implementation "io.github.libktx:ktx-math:$ktxMathVersion"
   implementation "io.github.libktx:ktx-app:$ktxAppVersion"
   implementation "io.github.libktx:ktx-assets:$ktxAssetsVersion"
+  compile ('io.socket:socket.io-client:1.0.0')
   implementation project(':shared')
 }
         

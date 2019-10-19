@@ -1,41 +1,36 @@
 package ru.maximus.tictactoe.server;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Net;
-import com.badlogic.gdx.net.ServerSocket;
-import com.badlogic.gdx.net.ServerSocketHints;
-import com.badlogic.gdx.net.Socket;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import com.corundumstudio.socketio.Configuration;
+import com.corundumstudio.socketio.SocketIOClient;
+import com.corundumstudio.socketio.SocketIOServer;
 
 public class Server extends Game {
 
-    ServerSocketHints socketHints;
-    ServerSocket serverSocket;
+    SocketIOServer ioServer;
 
     @Override
     public void create() {
-        socketHints = new ServerSocketHints();
-        socketHints.acceptTimeout = 0;
+        Configuration config = new Configuration();
+        config.setPort(7777);
 
-        serverSocket = Gdx.net.newServerSocket(Net.Protocol.TCP, 7777, socketHints);
+        ioServer = new SocketIOServer(config);
+
+        ioServer.addConnectListener(client -> {
+            System.out.println("client connected");
+        });
+
+        ioServer.start();
     }
 
     @Override
     public void render() {
-        Socket socket = serverSocket.accept(null);
 
-        // Read data from the socket into a BufferedReader
-        BufferedReader buffer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    }
 
-        try {
-            // Read to the next newline (\n) and display that text on labelMessage
-            System.out.println(buffer.readLine());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public void dispose() {
+        super.dispose();
+        ioServer.stop();
     }
 }
