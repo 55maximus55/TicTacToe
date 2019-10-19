@@ -1,0 +1,19 @@
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+mainClassName = 'ru.maximus.tictactoe.server.ServerLauncher'
+eclipse.project.name = appName + '-server'
+
+dependencies {
+  implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+  implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+  implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  implementation project(':shared')
+}
+
+jar {
+  from { configurations.compile.collect { zipTree(it) } }
+  manifest {
+    attributes 'Main-Class': project.mainClassName
+  }
+}
