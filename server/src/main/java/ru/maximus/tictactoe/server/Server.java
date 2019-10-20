@@ -16,7 +16,7 @@ public class Server extends Game {
         ioServer = new SocketIOServer(config);
 
         ioServer.addConnectListener(client -> System.out.println("client connected: " + client.getSessionId()));
-        ioServer.addDisconnectListener(client -> System.out.println("client connected: " + client.getSessionId()));
+        ioServer.addDisconnectListener(client -> System.out.println("client disconnected: " + client.getSessionId()));
 
         ioServer.start();
     }
