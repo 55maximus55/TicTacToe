@@ -2,7 +2,6 @@ package ru.maximus.tictactoe.server;
 
 import com.badlogic.gdx.Game;
 import com.corundumstudio.socketio.Configuration;
-import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 
 public class Server extends Game {
@@ -16,9 +15,8 @@ public class Server extends Game {
 
         ioServer = new SocketIOServer(config);
 
-        ioServer.addConnectListener(client -> {
-            System.out.println("client connected");
-        });
+        ioServer.addConnectListener(client -> System.out.println("client connected: " + client.getSessionId()));
+        ioServer.addDisconnectListener(client -> System.out.println("client connected: " + client.getSessionId()));
 
         ioServer.start();
     }

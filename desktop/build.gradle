@@ -2,24 +2,26 @@ apply plugin: 'application'
 
 sourceSets.main.resources.srcDirs += [ rootProject.file('assets').absolutePath ]
 mainClassName = 'ru.maximus.tictactoe.desktop.DesktopLauncher'
-eclipse.project.name = appName + '-desktop'
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 
 dependencies {
   implementation project(':core')
+  implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
   implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
   implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
   implementation "com.badlogicgames.gdx:gdx-controllers-desktop:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-controllers-platform:$gdxVersion:natives-desktop"
   implementation "de.tomgrill.gdxdialogs:gdx-dialogs-desktop:$dialogsVersion"
+
+  implementation "io.github.libktx:ktx-app:$ktxAppVersion"
 }
 
 jar {
   archiveName "${appName}-${version}.jar"
   from { configurations.compile.collect { zipTree(it) } }
   manifest {
-    attributes 'Main-Class': project.mainClassName
+    attributes 'App-Class': project.mainClassName
   }
 }
 

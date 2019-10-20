@@ -6,18 +6,20 @@ dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
   implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
-  implementation "io.github.libktx:ktx-inject:$ktxInjectVersion"
-  implementation "io.github.libktx:ktx-style:$ktxStyleVersion"
-  implementation "io.github.libktx:ktx-scene2d:$ktxScene2DVersion"
   implementation "de.tomgrill.gdxdialogs:gdx-dialogs-core:$dialogsVersion"
-  implementation "io.github.libktx:ktx-i18n:$ktxI18nVersion"
+
+  implementation "io.github.libktx:ktx-log:$ktxLogVersion"
+  implementation "io.github.libktx:ktx-scene2d:$ktxScene2DVersion"
   implementation "io.github.libktx:ktx-async:$ktxAsyncVersion"
+  implementation "io.github.libktx:ktx-inject:$ktxInjectVersion"
+  implementation "io.github.libktx:ktx-app:$ktxAppVersion"
+  implementation "io.github.libktx:ktx-math:$ktxMathVersion"
+  implementation "io.github.libktx:ktx-assets:$ktxAssetsVersion"
+  implementation "io.github.libktx:ktx-i18n:$ktxI18nVersion"
   implementation "io.github.libktx:ktx-actors:$ktxActorsVersion"
   implementation "io.github.libktx:ktx-collections:$ktxCollectionsVersion"
-  implementation "io.github.libktx:ktx-log:$ktxLogVersion"
-  implementation "io.github.libktx:ktx-math:$ktxMathVersion"
-  implementation "io.github.libktx:ktx-app:$ktxAppVersion"
-  implementation "io.github.libktx:ktx-assets:$ktxAssetsVersion"
+  implementation "io.github.libktx:ktx-style:$ktxStyleVersion"
+
   compile ('io.socket:socket.io-client:1.0.0')
   implementation project(':shared')
 }
