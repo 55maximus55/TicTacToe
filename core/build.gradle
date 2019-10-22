@@ -2,7 +2,7 @@
 eclipse.project.name = appName + '-core'
 
 dependencies {
-  implementation 'org.json:json:20171018'
+  implementation 'org.json:json:20180130'
   implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
   implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
@@ -21,7 +21,7 @@ dependencies {
   implementation "io.github.libktx:ktx-collections:$ktxCollectionsVersion"
   implementation "io.github.libktx:ktx-style:$ktxStyleVersion"
 
-  compile ('io.socket:socket.io-client:1.0.0')
+  compile ('io.socket:socket.io-client:0.6.1')
   implementation project(':shared')
 }
         

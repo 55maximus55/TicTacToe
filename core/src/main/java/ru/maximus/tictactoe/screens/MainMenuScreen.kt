@@ -19,7 +19,7 @@ class MainMenuScreen(val stage: Stage, val app: App) : KtxScreen {
         textButton(text = "Settings", style = defaultStyle).cell(row = true)
         textButton(text = "Disconnect", style = defaultStyle).cell(row = true).apply {
             onClick {
-                app.socket.disconnect()
+                app.setScreen<ConnectToServerScreen>()
             }
         }
     }

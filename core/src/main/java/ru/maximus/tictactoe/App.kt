@@ -25,8 +25,6 @@ class App : KtxGame<Screen>() {
 
     val context = Context()
 
-    var socket = IO.socket("")
-
     override fun create() {
         enableKtxCoroutines(asynchronousExecutorConcurrencyLevel = 1)
         context.register {
@@ -46,6 +44,8 @@ class App : KtxGame<Screen>() {
         addScreen(context.inject<ConnectToServerScreen>())
         addScreen(context.inject<AuthScreen>())
         addScreen(context.inject<MainMenuScreen>())
+
+        setScreen<ConnectToServerScreen>()
     }
 
     fun createSkin(atlas: TextureAtlas): Skin = skin(atlas) { skin ->
@@ -68,12 +68,6 @@ class App : KtxGame<Screen>() {
 
     override fun render() {
         super.render()
-
-        if (currentScreen !is ConnectToServerScreen) {
-            if (!socket.connected()) {
-                setScreen<ConnectToServerScreen>()
-            }
-        }
     }
 
     override fun dispose() {
