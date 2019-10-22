@@ -5,9 +5,11 @@ mainClassName = 'ru.maximus.tictactoe.server.ServerLauncher'
 eclipse.project.name = appName + '-server'
 
 dependencies {
+  implementation 'org.json:json:20171018'
   implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
   implementation group: 'com.corundumstudio.socketio', name: 'netty-socketio', version: '1.7.16'
   implementation project(':shared')
 }

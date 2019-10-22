@@ -30,6 +30,7 @@ class ConnectToServerScreen(val stage: Stage, val app: App) : KtxScreen {
         row()
         textButton("Connect", style = defaultStyle).apply {
             onClick {
+                app.socket.disconnect()
                 try {
                     app.socket = IO.socket("http://${addressInput.text}")
                     app.socket.connect()
@@ -63,7 +64,14 @@ class ConnectToServerScreen(val stage: Stage, val app: App) : KtxScreen {
             addressInput.isDisabled = false
         }
 
-        if (app.socket.connected())
-            app.setScreen<MainMenuScreen>()
+        if (app.socket.connected()) {
+            app.setScreen<AuthScreen>()
+            connectionTimer = connectWaitTime
+        }
     }
+
+    override fun hide() {
+        view.remove()
+    }
+
 }

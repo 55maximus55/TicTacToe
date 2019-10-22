@@ -2,6 +2,7 @@
 eclipse.project.name = appName + '-core'
 
 dependencies {
+  implementation 'org.json:json:20171018'
   implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
   implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"

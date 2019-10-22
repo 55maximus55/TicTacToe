@@ -17,6 +17,7 @@ import ktx.inject.Context
 import ru.maximus.tictactoe.screens.ConnectToServerScreen
 import ktx.scene2d.Scene2DSkin
 import ktx.style.*
+import ru.maximus.tictactoe.screens.AuthScreen
 import ru.maximus.tictactoe.screens.MainMenuScreen
 
 /** [com.badlogic.gdx.Game] implementation shared by all platforms.  */
@@ -38,10 +39,12 @@ class App : KtxGame<Screen>() {
             Scene2DSkin.defaultSkin = inject()
 
             bindSingleton(ConnectToServerScreen(inject(), inject()))
+            bindSingleton(AuthScreen(inject(), inject()))
             bindSingleton(MainMenuScreen(inject(), inject()))
         }
 
         addScreen(context.inject<ConnectToServerScreen>())
+        addScreen(context.inject<AuthScreen>())
         addScreen(context.inject<MainMenuScreen>())
     }
 

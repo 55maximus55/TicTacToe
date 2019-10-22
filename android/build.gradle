@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 
 android {
   buildToolsVersion '29.0.2'
-  compileSdkVersion 29
+  compileSdkVersion 25
   sourceSets {
     main {
       manifest.srcFile 'AndroidManifest.xml'
@@ -35,7 +35,7 @@ android {
   defaultConfig {
     applicationId 'ru.maximus.tictactoe'
     minSdkVersion 9
-    targetSdkVersion 29
+    targetSdkVersion 25
   }
 }
 
