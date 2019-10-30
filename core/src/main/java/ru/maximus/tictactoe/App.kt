@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import io.socket.client.IO
+import io.socket.client.Socket
 import ktx.app.KtxGame
 import ktx.async.enableKtxCoroutines
 import ktx.inject.Context
@@ -18,12 +19,15 @@ import ru.maximus.tictactoe.screens.ConnectToServerScreen
 import ktx.scene2d.Scene2DSkin
 import ktx.style.*
 import ru.maximus.tictactoe.screens.AuthScreen
+import ru.maximus.tictactoe.screens.FriendsScreen
 import ru.maximus.tictactoe.screens.MainMenuScreen
 
 /** [com.badlogic.gdx.Game] implementation shared by all platforms.  */
 class App : KtxGame<Screen>() {
 
     val context = Context()
+
+    var socket: Socket? = null
 
     override fun create() {
         enableKtxCoroutines(asynchronousExecutorConcurrencyLevel = 1)
@@ -39,11 +43,13 @@ class App : KtxGame<Screen>() {
             bindSingleton(ConnectToServerScreen(inject(), inject()))
             bindSingleton(AuthScreen(inject(), inject()))
             bindSingleton(MainMenuScreen(inject(), inject()))
+            bindSingleton(FriendsScreen(inject(), inject()))
         }
 
         addScreen(context.inject<ConnectToServerScreen>())
         addScreen(context.inject<AuthScreen>())
         addScreen(context.inject<MainMenuScreen>())
+        addScreen(context.inject<FriendsScreen>())
 
         setScreen<ConnectToServerScreen>()
     }

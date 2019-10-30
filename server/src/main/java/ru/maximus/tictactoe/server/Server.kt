@@ -9,7 +9,6 @@ import ru.maximus.tictactoe.AuthData
 import com.corundumstudio.socketio.listener.DataListener
 
 
-
 class Server : Game() {
 
     lateinit var ioServer: SocketIOServer
@@ -30,6 +29,12 @@ class Server : Game() {
 
         ioServer.start()
         Gdx.app.log("SocketIO", "Server started")
+
+        ioServer.addEventListener("authTry", String::class.java) { client, data, _ ->
+            val authData = JSONObject(data)
+            println(authData)
+            client.sendEvent("authSuccess", true)
+        }
     }
 
     override fun render() {

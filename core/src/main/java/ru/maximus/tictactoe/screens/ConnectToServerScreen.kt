@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
+import io.socket.client.IO
 import ktx.actors.onClick
 import ktx.app.KtxScreen
 import ktx.scene2d.*
@@ -25,12 +26,18 @@ class ConnectToServerScreen(val stage: Stage, val app: App) : KtxScreen {
         row()
         textButton("Connect", style = defaultStyle).apply {
             onClick {
-                app.setScreen<AuthScreen>()
+                app.socket?.disconnect()
+                try {
+                    app.socket = IO.socket("http://${addressInput.text}")
+                    app.socket!!.connect()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
-        connectInfoLabel = label(text = "Connecting", style = defaultStyle).apply {
-            color = Color.GRAY
-        }
+//        connectInfoLabel = label(text = "Connecting", style = defaultStyle).apply {
+//            color = Color.GRAY
+//        }
     }
 
     override fun show() {
@@ -41,6 +48,10 @@ class ConnectToServerScreen(val stage: Stage, val app: App) : KtxScreen {
     override fun render(delta: Float) {
         stage.act(delta)
         stage.draw()
+
+        if (app.socket != null && app.socket!!.connected()) {
+            app.setScreen<AuthScreen>()
+        }
     }
 
     override fun hide() {
