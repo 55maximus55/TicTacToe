@@ -12,6 +12,7 @@ dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
   implementation group: 'com.corundumstudio.socketio', name: 'netty-socketio', version: '1.7.16'
+  compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.7.2'
 
   implementation project(':shared')
 }
