@@ -4,10 +4,10 @@ import java.util.UUID;
 
 public class Player {
 
-    UUID id;
-    boolean isAuth = false;
+    UUID sessionId;
+    int dbId = -1;
 
     public Player(UUID id) {
-        this.id = id;
+        this.sessionId = id;
     }
 }
