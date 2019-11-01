@@ -36,8 +36,8 @@ class AuthScreen(val stage: Stage, val app: App) : KtxScreen {
                 }
 
                 val o = JSONObject()
-                o.put("login", loginText.text)
-                o.put("pass", passText.text)
+                o.put(AUTH_DATA_USERNAME, loginText.text)
+                o.put(AUTH_DATA_PASSWORD, passText.text)
                 app.socket!!.emit(AUTH_TRY, o.toString())
             }
         }
@@ -48,8 +48,8 @@ class AuthScreen(val stage: Stage, val app: App) : KtxScreen {
                 }
 
                 val o = JSONObject()
-                o.put("login", loginText.text)
-                o.put("pass", passText.text)
+                o.put(AUTH_DATA_USERNAME, loginText.text)
+                o.put(AUTH_DATA_PASSWORD, passText.text)
                 app.socket!!.emit(REG_TRY, o.toString())
             }
         }
