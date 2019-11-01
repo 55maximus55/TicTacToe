@@ -15,12 +15,9 @@ import io.socket.client.Socket
 import ktx.app.KtxGame
 import ktx.async.enableKtxCoroutines
 import ktx.inject.Context
-import ru.maximus.tictactoe.screens.ConnectToServerScreen
 import ktx.scene2d.Scene2DSkin
 import ktx.style.*
-import ru.maximus.tictactoe.screens.AuthScreen
-import ru.maximus.tictactoe.screens.FriendsScreen
-import ru.maximus.tictactoe.screens.MainMenuScreen
+import ru.maximus.tictactoe.screens.*
 
 /** [com.badlogic.gdx.Game] implementation shared by all platforms.  */
 class App : KtxGame<Screen>() {
@@ -44,12 +41,14 @@ class App : KtxGame<Screen>() {
             bindSingleton(AuthScreen(inject(), inject()))
             bindSingleton(MainMenuScreen(inject(), inject()))
             bindSingleton(FriendsScreen(inject(), inject()))
+            bindSingleton(FindGameScreen(inject(), inject()))
         }
 
         addScreen(context.inject<ConnectToServerScreen>())
         addScreen(context.inject<AuthScreen>())
         addScreen(context.inject<MainMenuScreen>())
         addScreen(context.inject<FriendsScreen>())
+        addScreen(context.inject<FindGameScreen>())
 
         setScreen<ConnectToServerScreen>()
     }

@@ -14,7 +14,11 @@ class MainMenuScreen(val stage: Stage, val app: App) : KtxScreen {
     val view = table {
         setFillParent(true)
 
-        textButton(text = "Play", style = defaultStyle).cell(row = true)
+        textButton(text = "Play", style = defaultStyle).cell(row = true).apply {
+            onClick {
+                app.setScreen<FindGameScreen>()
+            }
+        }
         textButton(text = "Friends", style = defaultStyle).cell(row = true)
         textButton(text = "Settings", style = defaultStyle).cell(row = true)
         textButton(text = "Disconnect", style = defaultStyle).cell(row = true).apply {
