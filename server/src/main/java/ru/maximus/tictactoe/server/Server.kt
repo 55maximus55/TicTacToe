@@ -2,8 +2,13 @@ package ru.maximus.tictactoe.server
 
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.corundumstudio.socketio.*
 import org.json.JSONObject
+import ru.maximus.tictactoe.AUTH_SUCCESS
+import ru.maximus.tictactoe.AUTH_TRY
+import ru.maximus.tictactoe.REG_SUCCESS
+import ru.maximus.tictactoe.REG_TRY
 import ru.maximus.tictactoe.server.events.createConnectionEvents
 import java.util.*
 import kotlin.collections.HashMap
@@ -36,17 +41,17 @@ class Server : Game() {
         }
 
         ioServer.apply {
-            addEventListener("authTry", String::class.java) { client, data, _ ->
+            addEventListener(AUTH_TRY, String::class.java) { client, data, _ ->
                 val authData = JSONObject(data)
                 val id = DB.auth(authData.getString("login"), authData.getString("pass"))
-                client.sendEvent("authSuccess", id != -1)
+                client.sendEvent(AUTH_SUCCESS, id != -1)
                 playersMap[client.sessionId]!!.dbId = id
                 Gdx.app.log("Auth", "id(${client.sessionId}), data$authData, ${if (id == -1) "Fail" else "Success"}")
             }
-            addEventListener("regTry", String::class.java) { client, data, _ ->
+            addEventListener(REG_TRY, String::class.java) { client, data, _ ->
                 val regData = JSONObject(data)
                 val success = DB.reg(regData.getString("login"), regData.getString("pass"))
-                client.sendEvent("regSuccess", success)
+                client.sendEvent(REG_SUCCESS, success)
                 Gdx.app.log("Register", "id(${client.sessionId}), data$regData, ${if (success) "Success" else "Fail"}")
             }
         }

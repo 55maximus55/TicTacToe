@@ -8,7 +8,7 @@ import ktx.actors.onClick
 import ktx.app.KtxScreen
 import ktx.scene2d.*
 import org.json.JSONObject
-import ru.maximus.tictactoe.App
+import ru.maximus.tictactoe.*
 
 class AuthScreen(val stage: Stage, val app: App) : KtxScreen {
 
@@ -29,7 +29,7 @@ class AuthScreen(val stage: Stage, val app: App) : KtxScreen {
 
         textButton(text = "Auth", style = defaultStyle).cell(row = true).apply {
             onClick {
-                app.socket!!.once("authSuccess") { args ->
+                app.socket!!.once(AUTH_SUCCESS) { args ->
                     if (args[0] as Boolean) {
                         app.setScreen<MainMenuScreen>()
                     }
@@ -38,19 +38,19 @@ class AuthScreen(val stage: Stage, val app: App) : KtxScreen {
                 val o = JSONObject()
                 o.put("login", loginText.text)
                 o.put("pass", passText.text)
-                app.socket!!.emit("authTry", o.toString())
+                app.socket!!.emit(AUTH_TRY, o.toString())
             }
         }
         textButton(text = "Register", style = defaultStyle).cell(row = true).apply {
             onClick {
-                app.socket!!.once("regSuccess") { args ->
-                    println(args[0])
+                app.socket!!.once(REG_SUCCESS) { args ->
+//                    println(args[0])
                 }
 
                 val o = JSONObject()
                 o.put("login", loginText.text)
                 o.put("pass", passText.text)
-                app.socket!!.emit("regTry", o.toString())
+                app.socket!!.emit(REG_TRY, o.toString())
             }
         }
 
