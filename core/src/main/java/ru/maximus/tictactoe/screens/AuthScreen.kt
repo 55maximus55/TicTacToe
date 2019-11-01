@@ -41,7 +41,18 @@ class AuthScreen(val stage: Stage, val app: App) : KtxScreen {
                 app.socket!!.emit("authTry", o.toString())
             }
         }
-        textButton(text = "Register", style = defaultStyle).cell(row = true)
+        textButton(text = "Register", style = defaultStyle).cell(row = true).apply {
+            onClick {
+                app.socket!!.once("regSuccess") { args ->
+                    println(args[0])
+                }
+
+                val o = JSONObject()
+                o.put("login", loginText.text)
+                o.put("pass", passText.text)
+                app.socket!!.emit("regTry", o.toString())
+            }
+        }
 
         textButton(text = "Disconnect", style = defaultStyle).cell(row = true).apply {
             onClick {

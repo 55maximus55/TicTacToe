@@ -25,7 +25,7 @@ public class DB {
 
     public static void writeDB() throws SQLException
     {
-        statement.execute("INSERT INTO 'users' ('name', 'pass') VALUES ('root1', '123'); ");
+        statement.execute("INSERT INTO 'users' ('name', 'pass') VALUES ('root1', '123');");
     }
 
     // -------- Вывод таблицы--------
@@ -49,7 +49,7 @@ public class DB {
         resultSet.close();
     }
 
-    public static int auth(String user, String pass) throws SQLException{
+    public static int auth(String user, String pass) throws SQLException {
         resultSet = statement.executeQuery("SELECT * FROM users WHERE (name=\"" + user + "\" AND pass=\"" + pass + "\")");
 
         int id = -1;
@@ -58,6 +58,26 @@ public class DB {
             id = resultSet.getInt("id");
         }
         return id;
+    }
+
+    public static boolean reg(String user, String pass) {
+        try {
+            resultSet = statement.executeQuery("SELECT * FROM users WHERE (name=\"" + user + "\")");
+
+            boolean r = true;
+
+            while (resultSet.next()) {
+                r = false;
+            }
+
+            if (r) {
+                statement.executeQuery("INSERT INTO 'users' ('name', 'pass') VALUES ('" + user + "', '" + pass + "');");
+            }
+
+            return r;
+        } catch (Exception e) {
+            return true;
+        }
     }
 
 }

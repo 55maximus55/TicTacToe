@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.corundumstudio.socketio.*
 import org.json.JSONObject
+import ru.maximus.tictactoe.server.events.createConnectionEvents
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -23,25 +24,35 @@ class Server : Game() {
 
         ioServer = SocketIOServer(config)
 
-        ioServer.addConnectListener {
-            Gdx.app.log("SocketIO", "Player connected\t(${it.sessionId})")
-            playersMap[it.sessionId] = Player(it.sessionId)
+        ioServer.apply {
+            addConnectListener {
+                Gdx.app.log("SocketIO", "Player connected\t(${it.sessionId})")
+                playersMap[it.sessionId] = Player(it.sessionId)
+            }
+            addDisconnectListener {
+                Gdx.app.log("SocketIO", "Player disconnected\t(${it.sessionId})")
+                playersMap.remove(it.sessionId)
+            }
         }
-        ioServer.addDisconnectListener {
-            Gdx.app.log("SocketIO", "Player disconnected\t(${it.sessionId})")
-            playersMap.remove(it.sessionId)
+
+        ioServer.apply {
+            addEventListener("authTry", String::class.java) { client, data, _ ->
+                val authData = JSONObject(data)
+                val id = DB.auth(authData.getString("login"), authData.getString("pass"))
+                client.sendEvent("authSuccess", id != -1)
+                playersMap[client.sessionId]!!.dbId = id
+                Gdx.app.log("Auth", "id(${client.sessionId}), data$authData, ${if (id == -1) "Fail" else "Success"}")
+            }
+            addEventListener("regTry", String::class.java) { client, data, _ ->
+                val regData = JSONObject(data)
+                val success = DB.reg(regData.getString("login"), regData.getString("pass"))
+                client.sendEvent("regSuccess", success)
+                Gdx.app.log("Register", "id(${client.sessionId}), data$regData, ${if (success) "Success" else "Fail"}")
+            }
         }
 
         ioServer.start()
         Gdx.app.log("SocketIO", "Server started")
-
-        ioServer.addEventListener("authTry", String::class.java) { client, data, _ ->
-            val authData = JSONObject(data)
-            val id = DB.auth(authData.getString("login"), authData.getString("pass"))
-            client.sendEvent("authSuccess", id != -1)
-            playersMap[client.sessionId]!!.dbId = id
-            Gdx.app.log("Auth", "id(${client.sessionId}), data$authData, ${if (id == -1) "Fail" else "Success"}")
-        }
     }
 
     override fun render() {
