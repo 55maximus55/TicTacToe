@@ -57,8 +57,6 @@ class AuthScreen(val stage: Stage, val app: App) : KtxScreen {
         textButton(text = "Disconnect", style = defaultStyle).cell(row = true).apply {
             onClick {
                 app.socket!!.disconnect()
-                while (app.socket!!.connected()) {}
-                app.setScreen<ConnectToServerScreen>()
             }
         }
     }

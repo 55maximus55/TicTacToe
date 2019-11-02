@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.TextField
 import io.socket.client.IO
+import io.socket.client.Socket
 import ktx.actors.onClick
 import ktx.app.KtxScreen
 import ktx.scene2d.*
@@ -29,6 +30,9 @@ class ConnectToServerScreen(val stage: Stage, val app: App) : KtxScreen {
                 app.socket?.disconnect()
                 try {
                     app.socket = IO.socket("http://${addressInput.text}")
+                    app.socket!!.on(Socket.EVENT_DISCONNECT) {
+                        app.setScreen<ConnectToServerScreen>()
+                    }
                     app.socket!!.connect()
                 } catch (e: Exception) {
                     e.printStackTrace()

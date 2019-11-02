@@ -8,13 +8,15 @@ import org.json.JSONObject
 import ru.maximus.tictactoe.*
 import ru.maximus.tictactoe.server.events.createConnectionEvents
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
-
 
 class Server : Game() {
 
     lateinit var ioServer: SocketIOServer
     val playersMap = HashMap<UUID, Player>()
+    val playersSearchingGames = ArrayList<UUID>()
+    val roomsMap = HashMap<UUID, Room>()
 
     override fun create() {
         DB.connect()
@@ -54,8 +56,33 @@ class Server : Game() {
             }
         }
 
+        // new game events
+        ioServer.apply {
+            addEventListener(PLAY_CREATE_GAME, String::class.java) { client, data, _ ->
+                if (checkPlayerAuth(client)) {
+                    client.sendEvent(PLAY_CREATE_GAME_SUCCESS, false)
+                }
+                else {
+                    if (playersMap[client.sessionId]!!.inGame) {
+                        client.sendEvent(PLAY_CREATE_GAME_SUCCESS, false)
+                    } else {
+                        playersMap[client.sessionId]!!.gameId = client.sessionId
+                        roomsMap[client.sessionId] = Room().apply {
+                            players.add(playersMap[client.sessionId])
+                        }
+
+                        client.sendEvent(PLAY_CREATE_GAME_SUCCESS, true)
+                    }
+                }
+            }
+        }
+
         ioServer.start()
         Gdx.app.log("SocketIO", "Server started")
+    }
+
+    fun checkPlayerAuth(client: SocketIOClient) : Boolean {
+        return playersMap[client.sessionId]!!.dbId != -1
     }
 
     override fun render() {}

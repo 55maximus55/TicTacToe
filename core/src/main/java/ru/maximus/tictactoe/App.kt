@@ -6,13 +6,14 @@ import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.badlogic.gdx.utils.viewport.Viewport
-import io.socket.client.IO
 import io.socket.client.Socket
 import ktx.app.KtxGame
+import ktx.assets.toInternalFile
 import ktx.async.enableKtxCoroutines
 import ktx.inject.Context
 import ktx.scene2d.Scene2DSkin
@@ -41,14 +42,16 @@ class App : KtxGame<Screen>() {
             bindSingleton(AuthScreen(inject(), inject()))
             bindSingleton(MainMenuScreen(inject(), inject()))
             bindSingleton(FriendsScreen(inject(), inject()))
-            bindSingleton(FindGameScreen(inject(), inject()))
+            bindSingleton(NewGameScreen(inject(), inject()))
+            bindSingleton(GameScreen(inject(), inject()))
         }
 
         addScreen(context.inject<ConnectToServerScreen>())
         addScreen(context.inject<AuthScreen>())
         addScreen(context.inject<MainMenuScreen>())
         addScreen(context.inject<FriendsScreen>())
-        addScreen(context.inject<FindGameScreen>())
+        addScreen(context.inject<NewGameScreen>())
+        addScreen(context.inject<GameScreen>())
 
         setScreen<ConnectToServerScreen>()
     }
