@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import ktx.app.KtxScreen
+import ktx.scene2d.Scene2DSkin
 import ktx.scene2d.defaultStyle
 import ktx.scene2d.label
 import ktx.scene2d.table
@@ -35,10 +36,8 @@ class GameListScreen(val stage: Stage, val app: App) : KtxScreen {
         app.socket!!.on(PLAY_SEND_GAMES_LIST) {
             val o = JSONObject(it[0].toString())
             roomsTable.clear()
-            roomsTable = table {
-                for (i in 0 until o.getInt(GAME_COUNT)) {
-                    label(text = o.getString(i.toString()), style = defaultStyle).cell(row = true)
-                }
+            for (i in 0 until o.getInt(GAME_COUNT)) {
+                roomsTable.add(Label(o.getString(i.toString()), Scene2DSkin.defaultSkin, defaultStyle)).row()
             }
         }
         app.socket!!.emit(PLAY_GET_GAMES_LIST)

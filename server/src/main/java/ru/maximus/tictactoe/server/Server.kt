@@ -37,27 +37,40 @@ class Server : Game() {
             }
             addDisconnectListener {
                 Gdx.app.log("SocketIO", "Player disconnected\t(${it.sessionId})")
-                playersMap.remove(it.sessionId)
                 if (roomsMap.containsKey(it.sessionId)) {
-
+                    for (i in roomsMap[it.sessionId]!!.players) {
+                        ioServer.getClient(i.sessionId).sendEvent(PLAY_KICK_ROOM)
+                        i.inGame = false
+                    }
+                    roomsMap.remove(it.sessionId)
+                    broadcastOperations.sendEvent(PLAY_SEND_GAMES_LIST)
                 }
+                playersMap.remove(it.sessionId)
             }
         }
 
         // auth events
         ioServer.apply {
             addEventListener(AUTH_TRY, String::class.java) { client, data, _ ->
-                val authData = JSONObject(data)
-                val id = DB.auth(authData.getString(AUTH_DATA_USERNAME), authData.getString(AUTH_DATA_PASSWORD))
-                client.sendEvent(AUTH_SUCCESS, id != -1)
-                playersMap[client.sessionId]!!.dbId = id
-                Gdx.app.log("Auth", "id(${client.sessionId}), data$authData, ${if (id == -1) "Fail" else "Success"}")
+                if (checkPlayerAuth(client)) {
+                    client.sendEvent(AUTH_SUCCESS, false)
+                } else {
+                    val authData = JSONObject(data)
+                    val id = DB.auth(authData.getString(AUTH_DATA_USERNAME), authData.getString(AUTH_DATA_PASSWORD))
+                    client.sendEvent(AUTH_SUCCESS, id != -1)
+                    playersMap[client.sessionId]!!.dbId = id
+                    Gdx.app.log("Auth", "id(${client.sessionId}), data$authData, ${if (id == -1) "Fail" else "Success"}")
+                }
             }
             addEventListener(REG_TRY, String::class.java) { client, data, _ ->
-                val regData = JSONObject(data)
-                val success = DB.reg(regData.getString(AUTH_DATA_USERNAME), regData.getString(AUTH_DATA_PASSWORD))
-                client.sendEvent(REG_SUCCESS, success)
-                Gdx.app.log("Register", "id(${client.sessionId}), data$regData, ${if (success) "Success" else "Fail"}")
+                if (checkPlayerAuth(client)) {
+                    client.sendEvent(REG_SUCCESS, false)
+                } else {
+                    val regData = JSONObject(data)
+                    val success = DB.reg(regData.getString(AUTH_DATA_USERNAME), regData.getString(AUTH_DATA_PASSWORD))
+                    client.sendEvent(REG_SUCCESS, success)
+                    Gdx.app.log("Register", "id(${client.sessionId}), data$regData, ${if (success) "Success" else "Fail"}")
+                }
             }
         }
 
