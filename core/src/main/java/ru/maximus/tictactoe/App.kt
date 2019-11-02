@@ -54,7 +54,11 @@ class App : KtxGame<Screen>() {
     }
 
     fun createSkin(atlas: TextureAtlas): Skin = skin(atlas) { skin ->
-        add(defaultStyle, BitmapFont())
+        add(defaultStyle, FreeTypeFontGenerator("Roboto-Regular.ttf".toInternalFile()).generateFont(
+                FreeTypeFontGenerator.FreeTypeFontParameter().apply {
+                    size = 24
+                }
+        ))
         label {
             font = skin[defaultStyle]
         }
