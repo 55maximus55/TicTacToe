@@ -23,6 +23,7 @@ class ConnectToServerScreen(val stage: Stage, val app: App) : KtxScreen {
         label(text = "Server address: ", style = defaultStyle)
         addressInput = textField(text = "localhost:7777", style = defaultStyle).apply {
             messageText = "address"
+            maxLength = 20
         }
         row()
         textButton("Connect", style = defaultStyle).apply {

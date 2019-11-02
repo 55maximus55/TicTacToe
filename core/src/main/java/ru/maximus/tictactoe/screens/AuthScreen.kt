@@ -25,6 +25,8 @@ class AuthScreen(val stage: Stage, val app: App) : KtxScreen {
         label(text = "Password: ", style = defaultStyle)
         passText = textField(text = "", style = defaultStyle).cell(row = true).apply {
             messageText = "1234"
+            isPasswordMode = true
+            setPasswordCharacter('*')
         }
 
         textButton(text = "Auth", style = defaultStyle).cell(row = true).apply {

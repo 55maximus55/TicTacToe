@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.badlogic.gdx.utils.viewport.Viewport
+import io.socket.client.IO
 import io.socket.client.Socket
 import ktx.app.KtxGame
 import ktx.assets.toInternalFile
@@ -41,17 +42,19 @@ class App : KtxGame<Screen>() {
             bindSingleton(ConnectToServerScreen(inject(), inject()))
             bindSingleton(AuthScreen(inject(), inject()))
             bindSingleton(MainMenuScreen(inject(), inject()))
-            bindSingleton(FriendsScreen(inject(), inject()))
             bindSingleton(NewGameScreen(inject(), inject()))
             bindSingleton(GameScreen(inject(), inject()))
+            bindSingleton(GameListScreen(inject(), inject()))
+            bindSingleton(FriendsScreen(inject(), inject()))
         }
 
         addScreen(context.inject<ConnectToServerScreen>())
         addScreen(context.inject<AuthScreen>())
         addScreen(context.inject<MainMenuScreen>())
-        addScreen(context.inject<FriendsScreen>())
-        addScreen(context.inject<NewGameScreen>())
         addScreen(context.inject<GameScreen>())
+        addScreen(context.inject<NewGameScreen>())
+        addScreen(context.inject<GameListScreen>())
+        addScreen(context.inject<FriendsScreen>())
 
         setScreen<ConnectToServerScreen>()
     }

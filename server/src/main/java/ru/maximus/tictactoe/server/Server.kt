@@ -4,9 +4,11 @@ import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.corundumstudio.socketio.*
+import org.json.JSONArray
 import org.json.JSONObject
 import ru.maximus.tictactoe.*
 import ru.maximus.tictactoe.server.events.createConnectionEvents
+import java.lang.Exception
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -36,6 +38,9 @@ class Server : Game() {
             addDisconnectListener {
                 Gdx.app.log("SocketIO", "Player disconnected\t(${it.sessionId})")
                 playersMap.remove(it.sessionId)
+                if (roomsMap.containsKey(it.sessionId)) {
+
+                }
             }
         }
 
@@ -60,9 +65,6 @@ class Server : Game() {
         ioServer.apply {
             addEventListener(PLAY_CREATE_GAME, String::class.java) { client, data, _ ->
                 if (checkPlayerAuth(client)) {
-                    client.sendEvent(PLAY_CREATE_GAME_SUCCESS, false)
-                }
-                else {
                     if (playersMap[client.sessionId]!!.inGame) {
                         client.sendEvent(PLAY_CREATE_GAME_SUCCESS, false)
                     } else {
@@ -73,7 +75,17 @@ class Server : Game() {
 
                         client.sendEvent(PLAY_CREATE_GAME_SUCCESS, true)
                     }
+                } else {
+                    client.sendEvent(PLAY_CREATE_GAME_SUCCESS, false)
                 }
+            }
+            addEventListener(PLAY_GET_GAMES_LIST, String::class.java) { client, data, _ ->
+                val o = JSONObject()
+                o.put(GAME_COUNT, roomsMap.keys.size)
+                for ((i, room) in roomsMap.keys.withIndex()) {
+                    o.put(i.toString(), room.toString())
+                }
+                client.sendEvent(PLAY_SEND_GAMES_LIST, o.toString())
             }
         }
 

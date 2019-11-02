@@ -2,6 +2,7 @@ package ru.maximus.tictactoe.screens
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Stage
+import ktx.actors.onClick
 import ktx.app.KtxScreen
 import ktx.scene2d.defaultStyle
 import ktx.scene2d.table
@@ -16,7 +17,7 @@ class NewGameScreen(val stage: Stage, val app: App) : KtxScreen {
         setFillParent(true)
 
         textButton(text = "Create room", style = defaultStyle).cell(row = true).apply {
-            if (app.socket != null) {
+            onClick {
                 app.socket!!.once(PLAY_CREATE_GAME_SUCCESS) {
                     if (it[0] as Boolean) {
                         println(it[0])
@@ -28,7 +29,9 @@ class NewGameScreen(val stage: Stage, val app: App) : KtxScreen {
             }
         }
         textButton(text = "Find room", style = defaultStyle).cell(row = true).apply {
-
+            onClick {
+                app.setScreen<GameListScreen>()
+            }
         }
     }
 

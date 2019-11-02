@@ -9,3 +9,6 @@ const val REG_SUCCESS = "RegSuccess"
 const val PLAY_CREATE_GAME = "PlayCreateGame"
 const val PLAY_CREATE_GAME_SUCCESS = "PlayCreateGameSuccess"
 const val PLAY_GET_GAMES_LIST = "PlayGetGames"
+const val PLAY_SEND_GAMES_LIST = "PlaySendGames"
+
+const val PLAY_LEAVE_ROOM = "LeaveRoom"
