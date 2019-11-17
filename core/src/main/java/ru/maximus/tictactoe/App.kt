@@ -3,7 +3,6 @@ package ru.maximus.tictactoe
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Batch
-import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
@@ -11,8 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.badlogic.gdx.utils.viewport.Viewport
-import io.socket.client.IO
-import io.socket.client.Socket
 import ktx.app.KtxGame
 import ktx.assets.toInternalFile
 import ktx.async.enableKtxCoroutines
@@ -26,8 +23,6 @@ class App : KtxGame<Screen>() {
 
     val context = Context()
 
-    var socket: Socket? = null
-
     override fun create() {
         enableKtxCoroutines(asynchronousExecutorConcurrencyLevel = 1)
         context.register {
@@ -38,25 +33,7 @@ class App : KtxGame<Screen>() {
             bindSingleton(createSkin(inject()))
             bindSingleton(this@App)
             Scene2DSkin.defaultSkin = inject()
-
-            bindSingleton(ConnectToServerScreen(inject(), inject()))
-            bindSingleton(AuthScreen(inject(), inject()))
-            bindSingleton(MainMenuScreen(inject(), inject()))
-            bindSingleton(NewGameScreen(inject(), inject()))
-            bindSingleton(GameScreen(inject(), inject()))
-            bindSingleton(GameListScreen(inject(), inject()))
-            bindSingleton(FriendsScreen(inject(), inject()))
         }
-
-        addScreen(context.inject<ConnectToServerScreen>())
-        addScreen(context.inject<AuthScreen>())
-        addScreen(context.inject<MainMenuScreen>())
-        addScreen(context.inject<GameScreen>())
-        addScreen(context.inject<NewGameScreen>())
-        addScreen(context.inject<GameListScreen>())
-        addScreen(context.inject<FriendsScreen>())
-
-        setScreen<ConnectToServerScreen>()
     }
 
     fun createSkin(atlas: TextureAtlas): Skin = skin(atlas) { skin ->
@@ -81,11 +58,7 @@ class App : KtxGame<Screen>() {
         }
     }
 
-    override fun render() {
-        super.render()
-    }
+    override fun render() {}
 
-    override fun dispose() {
-        context.dispose()
-    }
+    override fun dispose() {}
 }
