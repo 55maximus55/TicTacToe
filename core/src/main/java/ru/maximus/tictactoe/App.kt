@@ -33,7 +33,19 @@ class App : KtxGame<Screen>() {
             bindSingleton(createSkin(inject()))
             bindSingleton(this@App)
             Scene2DSkin.defaultSkin = inject()
+
+            bindSingleton(MainMenuScreen(inject(), inject()))
+            bindSingleton(GamesListScreen(inject(), inject()))
+            bindSingleton(SettingsScreen(inject(), inject()))
+            bindSingleton(GameScreen(inject(), inject()))
         }
+
+        addScreen(context.inject<MainMenuScreen>())
+        addScreen(context.inject<GamesListScreen>())
+        addScreen(context.inject<SettingsScreen>())
+        addScreen(context.inject<GameScreen>())
+
+        setScreen<MainMenuScreen>()
     }
 
     fun createSkin(atlas: TextureAtlas): Skin = skin(atlas) { skin ->
@@ -56,9 +68,18 @@ class App : KtxGame<Screen>() {
             fontColor = Color.GREEN
             downFontColor = Color.BLUE
         }
+        scrollPane {
+
+        }
+        slider {
+            knob = skin["knob-v"]
+            background = skin["line-h"]
+        }
     }
 
-    override fun render() {}
+    override fun render() {
+        super.render()
+    }
 
     override fun dispose() {}
 }
