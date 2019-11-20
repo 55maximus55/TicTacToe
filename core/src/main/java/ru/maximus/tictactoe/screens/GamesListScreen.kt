@@ -52,10 +52,6 @@ class GamesListScreen(val stage: Stage, val app: App) : KtxScreen {
         stage.draw()
     }
 
-    override fun resize(width: Int, height: Int) {
-        stage.viewport.update(width, height, true)
-    }
-
     override fun hide() {
         view.remove()
     }

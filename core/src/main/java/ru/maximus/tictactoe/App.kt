@@ -81,5 +81,10 @@ class App : KtxGame<Screen>() {
         super.render()
     }
 
+    override fun resize(width: Int, height: Int) {
+        super.resize(width, height)
+        context.inject<Stage>().viewport.update(width, height, true)
+    }
+
     override fun dispose() {}
 }
