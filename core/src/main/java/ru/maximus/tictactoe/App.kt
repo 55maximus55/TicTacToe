@@ -10,6 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.badlogic.gdx.utils.viewport.Viewport
+import io.socket.client.IO
+import io.socket.client.Socket
 import ktx.app.KtxGame
 import ktx.assets.toInternalFile
 import ktx.async.enableKtxCoroutines
@@ -22,6 +24,7 @@ import ru.maximus.tictactoe.screens.*
 class App : KtxGame<Screen>() {
 
     val context = Context()
+    val socket = IO.socket("http://localhost:7777")
 
     override fun create() {
         enableKtxCoroutines(asynchronousExecutorConcurrencyLevel = 1)
