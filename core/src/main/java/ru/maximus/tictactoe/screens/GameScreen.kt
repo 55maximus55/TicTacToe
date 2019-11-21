@@ -2,18 +2,17 @@ package ru.maximus.tictactoe.screens
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.Table
 import ktx.actors.onClick
 import ktx.app.KtxScreen
-import ktx.scene2d.defaultStyle
-import ktx.scene2d.label
-import ktx.scene2d.table
-import ktx.scene2d.textButton
-import ru.maximus.tictactoe.App
-import ru.maximus.tictactoe.ROOMS_KICK
-import ru.maximus.tictactoe.ROOMS_LEAVE
-import ru.maximus.tictactoe.ROOMS_PLAYER_LEFT
+import ktx.scene2d.*
+import org.json.JSONObject
+import ru.maximus.tictactoe.*
 
 class GameScreen(val stage: Stage, val app: App) : KtxScreen {
+
+    lateinit var playersTable: Table
 
     val view = table {
         setFillParent(true)
@@ -34,11 +33,13 @@ class GameScreen(val stage: Stage, val app: App) : KtxScreen {
         table {
             textButton(text = "Exit", style = defaultStyle).cell(row = true).apply {
                 onClick {
-                    app.socket.emit(ROOMS_LEAVE)
+                    app.socket.emit(EVENT_ROOMS_LEAVE)
                 }
             }
-            label(text = "Player1: ").cell(row = true)
-            label(text = "Player2: ").cell(row = true)
+            label(text = "Players:", style = defaultStyle).cell(row = true)
+            scrollPane(style = defaultStyle) {
+                playersTable = table()
+            }
         }
     }
 
@@ -46,9 +47,30 @@ class GameScreen(val stage: Stage, val app: App) : KtxScreen {
         stage.addActor(view)
         Gdx.input.inputProcessor = stage
 
-        app.socket.once(ROOMS_KICK) { args ->
+        app.socket.once(EVENT_ROOMS_KICK) { args ->
             app.setScreen<MainMenuScreen>()
         }
+        app.socket.on(EVENT_ROOMS_PLAYER_JOINED) { data ->
+            val json = JSONObject(data[0].toString())
+            playersTable.apply {
+                add(Label(json.getString(DATA_ROOMS_JOINED_PLAYER_NAME), Scene2DSkin.defaultSkin, defaultStyle))
+                row()
+            }
+        }
+        app.socket.once(EVENT_ROOMS_GET_PLAYER_LIST) { data ->
+            val d = JSONObject(data[0].toString())
+            val n = d.getInt(DATA_ROOMS_PLAYERS_GET_LIST_COUNT)
+            println(d)
+            playersTable.apply {
+                clear()
+                for (i in 0 until n) {
+                    add(Label(d.getString(i.toString()), Scene2DSkin.defaultSkin, defaultStyle))
+                    row()
+                }
+            }
+        }
+
+        app.socket.emit(EVENT_ROOMS_GET_PLAYER_LIST)
     }
 
     override fun render(delta: Float) {
