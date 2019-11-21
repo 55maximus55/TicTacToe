@@ -9,6 +9,9 @@ import ktx.scene2d.label
 import ktx.scene2d.table
 import ktx.scene2d.textButton
 import ru.maximus.tictactoe.App
+import ru.maximus.tictactoe.ROOMS_KICK
+import ru.maximus.tictactoe.ROOMS_LEAVE
+import ru.maximus.tictactoe.ROOMS_PLAYER_LEFT
 
 class GameScreen(val stage: Stage, val app: App) : KtxScreen {
 
@@ -30,7 +33,9 @@ class GameScreen(val stage: Stage, val app: App) : KtxScreen {
         }
         table {
             textButton(text = "Exit", style = defaultStyle).cell(row = true).apply {
-                onClick { app.setScreen<MainMenuScreen>() }
+                onClick {
+                    app.socket.emit(ROOMS_LEAVE)
+                }
             }
             label(text = "Player1: ").cell(row = true)
             label(text = "Player2: ").cell(row = true)
@@ -40,6 +45,10 @@ class GameScreen(val stage: Stage, val app: App) : KtxScreen {
     override fun show() {
         stage.addActor(view)
         Gdx.input.inputProcessor = stage
+
+        app.socket.once(ROOMS_KICK) { args ->
+            app.setScreen<MainMenuScreen>()
+        }
     }
 
     override fun render(delta: Float) {
