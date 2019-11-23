@@ -6,6 +6,7 @@ import com.corundumstudio.socketio.Configuration
 import com.corundumstudio.socketio.SocketIOServer
 import org.json.JSONObject
 import ru.maximus.tictactoe.*
+import java.lang.Exception
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -20,103 +21,169 @@ class Server : Game() {
             port = 7777
         })
 
-        connectDisconnectEvents()
-        roomEvents()
+        connectionEvents()
+        gameListScreenEvents()
+        gameScreenEvents()
 
         ioServer.start()
         Gdx.app.log("TicTacToe", "Server started, port: ${ioServer.configuration.port}")
     }
 
-    fun connectDisconnectEvents() {
-        ioServer.addConnectListener {
-            players[it.sessionId] = Player()
-            Gdx.app.log("Connection", "Player connected (${it.sessionId})")
+    fun connectionEvents() {
+        ioServer.addConnectListener { client ->
+            players[client.sessionId] = Player()
+            Gdx.app.log("Connection", "Player(${client.sessionId}) connected")
         }
-        ioServer.addDisconnectListener {
-            players.remove(it.sessionId)
-            Gdx.app.log("Connection", "Player disconnected (${it.sessionId})")
-            if (rooms.containsKey(it.sessionId)) {
-                for (i in 1 until rooms[it.sessionId]!!.players.size) {
-                    ioServer.getClient(rooms[it.sessionId]!!.players[i]).sendEvent(EVENT_ROOMS_KICK)
+        ioServer.addDisconnectListener { client ->
+            if (players[client.sessionId]!!.inGame) {
+                Gdx.app.log("Rooms", "Player(${client.sessionId}) left Room(${players[client.sessionId]!!.roomID})")
+                players[client.sessionId]!!.inGame = false
+
+                if (rooms.containsKey(client.sessionId)) {
+                    Gdx.app.log("Rooms", "Room leader left Room(${players[client.sessionId]!!.roomID}), room removed")
+                    for (i in rooms[client.sessionId]!!.players) {
+                        removePlayerFromRoom(i)
+                    }
+                    rooms.remove(client.sessionId)
+                } else {
+                    Gdx.app.log("Rooms", "Player(${client.sessionId}) left room(${players[client.sessionId]!!.roomID})")
+                    removePlayerFromRoom(client.sessionId)
+                    rooms[players[client.sessionId]!!.roomID]!!.players.remove(client.sessionId)
+                    val jsonSend = JSONObject().apply {
+                        put(DATA_PLAYER_NAME, client.sessionId)
+                    }
+                    for (i in rooms[players[client.sessionId]!!.roomID]!!.players) {
+                        ioServer.getClient(i).sendEvent(EVENT_ROOMS_PLAYER_LEFT, jsonSend.toString())
+                    }
                 }
-                rooms.remove(it.sessionId)
-                Gdx.app.log("Rooms", "Room leader disconnected, room removed (${it.sessionId})")
             }
+            Gdx.app.log("Connection", "Player(${client.sessionId}) disconnected")
+//            Gdx.app.log("", "")
         }
     }
 
-    fun roomEvents() {
-        ioServer.addEventListener(EVENT_ROOMS_CREATE, String::class.java) { client, data, _ ->
-            if (!rooms.containsKey(client.sessionId)) {
-                rooms[client.sessionId] = Room()
-                rooms[client.sessionId]!!.players.add(client.sessionId)
-
-                players[client.sessionId]!!.inGame = true
-                players[client.sessionId]!!.gameId = client.sessionId
-                Gdx.app.log("Rooms", "Created room (${client.sessionId})")
-            }
-        }
-        ioServer.addEventListener(EVENT_ROOMS_LEAVE, String::class.java) { client, data, _ ->
-            if (rooms.containsKey(client.sessionId)) {
-                for (i in 0 until rooms[client.sessionId]!!.players.size) {
-                    kickPlayerFromRoom(rooms[client.sessionId]!!.players[i])
-                }
-                rooms.remove(client.sessionId)
-                Gdx.app.log("Rooms", "Room leader left, room removed (${client.sessionId})")
-            }
-        }
+    fun gameListScreenEvents() {
         ioServer.addEventListener(EVENT_ROOMS_GET_LIST, String::class.java) { client, data, _ ->
-            val list = JSONObject()
-            list.apply {
-                put(DATA_ROOMS_GET_LIST_COUNT, rooms.keys.size)
+            val jsonGet = JSONObject(data)
+            val jsonSend = JSONObject()
+
+            jsonSend.apply {
+                put(DATA_LIST_COUNT, rooms.keys.size)
                 for ((i, roomID) in rooms.keys.withIndex()) {
                     put(i.toString(), roomID.toString())
                 }
             }
-            client.sendEvent(EVENT_ROOMS_GET_LIST, list.toString())
+            client.sendEvent(EVENT_ROOMS_GET_LIST, jsonSend.toString())
         }
-        ioServer.addEventListener(EVENT_ROOMS_GET_PLAYER_LIST, String::class.java) { client, data, _ ->
-            val json = JSONObject(data.toString())
-            val roomID = UUID.fromString(json.getString(DATA_ROOMS_JOIN_ROOMID))
+        ioServer.addEventListener(EVENT_ROOMS_JOIN, String::class.java) { client, data, _ ->
+            val jsonGet = JSONObject(data)
+            val jsonSend = JSONObject()
 
-            val list = JSONObject()
-            if (rooms.containsKey(roomID)) {
-                list.apply {
-                    put(DATA_ROOMS_PLAYERS_GET_LIST_COUNT, rooms[roomID]!!.players.size)
-                    for ((i, playerID) in rooms[roomID]!!.players.withIndex()) {
-                        put(i.toString(), playerID.toString())
+            if (players[client.sessionId]!!.inGame) {
+                jsonSend.put(DATA_SUCCESS, false)
+            } else {
+                val roomID = UUID.fromString(jsonGet.getString(DATA_ROOMS_JOIN_ROOMID))
+                if (rooms.keys.contains(roomID)) {
+                    if (rooms[roomID]!!.players.size <= rooms[roomID]!!.maxPlayer - 1) {
+                        rooms[roomID]!!.apply {
+                            val jsonSendOthers = JSONObject().apply {
+                                put(DATA_PLAYER_NAME, client.sessionId)
+                            }
+                            val stringSend = jsonSendOthers.toString()
+                            for (i in players) {
+                                ioServer.getClient(i).sendEvent(EVENT_ROOMS_PLAYER_JOINED, stringSend)
+                            }
+
+                            players.add(client.sessionId)
+                        }
+                        players[client.sessionId]!!.inGame = true
+                        players[client.sessionId]!!.roomID = roomID
+
+                        jsonSend.put(DATA_SUCCESS, true)
+                        Gdx.app.log("Rooms", "Player(${client.sessionId}) joined to Room(${roomID})")
+                    } else {
+                        jsonSend.put(DATA_SUCCESS, false)
                     }
+                } else {
+                    jsonSend.put(DATA_SUCCESS, false)
+                }
+            }
+            client.sendEvent(EVENT_ROOMS_JOIN_SUCCESS, jsonSend.toString())
+        }
+        ioServer.addEventListener(EVENT_ROOMS_CREATE, String::class.java) { client, data, _ ->
+            val jsonGet = JSONObject(data)
+            val jsonSend = JSONObject()
+
+            if (players[client.sessionId]!!.inGame) {
+                jsonSend.put(DATA_SUCCESS, false)
+            } else {
+                rooms[client.sessionId] = Room()
+                rooms[client.sessionId]!!.players.add(client.sessionId)
+
+                players[client.sessionId]!!.inGame = true
+                players[client.sessionId]!!.roomID = client.sessionId
+
+                jsonSend.put(DATA_SUCCESS, true)
+                Gdx.app.log("Rooms", "Player(${client.sessionId}) created room")
+            }
+            client.sendEvent(EVENT_ROOMS_CREATE_SUCCESS, jsonSend.toString())
+        }
+    }
+
+    fun gameScreenEvents() {
+        ioServer.addEventListener(EVENT_ROOMS_GET_PLAYER_LIST, String::class.java) { client, data, _ ->
+            val jsonGet = JSONObject(data.toString())
+            val jsonSend = JSONObject()
+
+            if (players[client.sessionId]!!.inGame) {
+                val roomID = players[client.sessionId]!!.roomID
+                if (rooms.containsKey(roomID)) {
+                    jsonSend.apply {
+                        put(DATA_LIST_COUNT, rooms[roomID]!!.players.size)
+                        for ((i, playerID) in rooms[roomID]!!.players.withIndex()) {
+                            put(i.toString(), playerID.toString())
+                        }
+                    }
+                } else {
+                    jsonSend.put(DATA_LIST_COUNT, 0)
                 }
             } else {
-                list.put(DATA_ROOMS_PLAYERS_GET_LIST_COUNT, 0)
+                jsonSend.put(DATA_LIST_COUNT, 0)
             }
-            client.sendEvent(EVENT_ROOMS_GET_PLAYER_LIST, list.toString())
+
+            client.sendEvent(EVENT_ROOMS_GET_PLAYER_LIST, jsonSend.toString())
         }
-        ioServer.addEventListener(EVENT_ROOMS_JOIN_TO_ROOM, String::class.java) { client, data, _ ->
-            if (!players[client.sessionId]!!.inGame) {
-                val json = JSONObject(data.toString())
-                val roomID = UUID.fromString(json.getString(DATA_ROOMS_JOIN_ROOMID))
+        ioServer.addEventListener(EVENT_ROOMS_LEAVE, String::class.java) { client, data, _ ->
+            if (players[client.sessionId]!!.inGame) {
+                players[client.sessionId]!!.inGame = false
 
-                if (rooms.containsKey(roomID)) {
-                    rooms[roomID]!!.apply {
-                        val jsonSend = JSONObject()
-                        jsonSend.put(DATA_ROOMS_JOINED_PLAYER_NAME, client.sessionId)
-                        for (i in players) {
-                            ioServer.getClient(i).sendEvent(EVENT_ROOMS_PLAYER_JOINED, jsonSend.toString())
-                        }
-                        players.add(client.sessionId)
+                if (rooms.containsKey(client.sessionId)) {
+                    Gdx.app.log("Rooms", "Room leader left Room(${players[client.sessionId]!!.roomID}), room removed")
+                    for (i in rooms[client.sessionId]!!.players) {
+                        removePlayerFromRoom(i)
                     }
-
-                    Gdx.app.log("Rooms", "Player (${client.sessionId}) joined to room (${roomID})")
-                    println(players)
+                    rooms.remove(client.sessionId)
+                } else {
+                    Gdx.app.log("Rooms", "Player(${client.sessionId}) left room(${players[client.sessionId]!!.roomID})")
+                    removePlayerFromRoom(client.sessionId)
+                    rooms[players[client.sessionId]!!.roomID]!!.players.remove(client.sessionId)
+                    val jsonSend = JSONObject().apply {
+                        put(DATA_PLAYER_NAME, client.sessionId)
+                    }
+                    for (i in rooms[players[client.sessionId]!!.roomID]!!.players) {
+                        ioServer.getClient(i).sendEvent(EVENT_ROOMS_PLAYER_LEFT, jsonSend.toString())
+                    }
                 }
             }
         }
     }
 
-    fun kickPlayerFromRoom(id : UUID) {
-        ioServer.getClient(id).sendEvent(EVENT_ROOMS_KICK)
-        players[id]!!.inGame = false
+    fun removePlayerFromRoom(id: UUID) {
+        if (players[id]!!.inGame) {
+            rooms[players[id]!!.roomID]!!.players.remove(id)
+            players[id]!!.inGame = false
+            ioServer.getClient(id).sendEvent(EVENT_ROOMS_GET_KICK)
+        }
     }
 
 }

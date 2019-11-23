@@ -6,5 +6,6 @@ import kotlin.collections.ArrayList
 class Room {
 
     val players = ArrayList<UUID>()
+    val maxPlayer = 2
 
 }

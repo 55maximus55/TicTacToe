@@ -5,6 +5,6 @@ import java.util.*
 class Player {
 
     var inGame = false
-    var gameId: UUID = UUID.randomUUID()
+    var roomID: UUID = UUID.randomUUID()
 
 }

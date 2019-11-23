@@ -32,8 +32,12 @@ class GamesListScreen(val stage: Stage, val app: App) : KtxScreen {
         table {
             textButton(text = "Create", style = defaultStyle).cell(row = true).apply {
                 onClick {
-                    app.socket.emit(EVENT_ROOMS_CREATE)
-                    app.setScreen<GameScreen>()
+                    createRoom()
+                }
+            }
+            textButton(text = "Update", style = defaultStyle).cell(row = true).apply {
+                onClick {
+                    getGamesList()
                 }
             }
         }.cell()
@@ -43,25 +47,7 @@ class GamesListScreen(val stage: Stage, val app: App) : KtxScreen {
         stage.addActor(view)
         Gdx.input.inputProcessor = stage
 
-        app.socket.once(EVENT_ROOMS_GET_LIST) { data ->
-            val d = JSONObject(data[0].toString())
-            val n = d.getInt(DATA_ROOMS_GET_LIST_COUNT)
-            gameListTable.apply {
-                clear()
-                for (i in 0 until n) {
-                    add(KTextButton(text = d.getString(i.toString()), style = defaultStyle, skin = Scene2DSkin.defaultSkin).apply {
-                        onClick {
-                            val json = JSONObject()
-                            json.put(DATA_ROOMS_JOIN_ROOMID, d.getString(i.toString()))
-                            app.socket.emit(EVENT_ROOMS_JOIN_TO_ROOM, json.toString())
-                            app.setScreen<GameScreen>()
-                        }
-                    })
-                    row()
-                }
-            }
-        }
-        app.socket.emit(EVENT_ROOMS_GET_LIST)
+        getGamesList()
     }
 
     override fun render(delta: Float) {
@@ -71,6 +57,52 @@ class GamesListScreen(val stage: Stage, val app: App) : KtxScreen {
 
     override fun hide() {
         view.remove()
+    }
+
+    private fun getGamesList() {
+        app.socket.once(EVENT_ROOMS_GET_LIST) { data ->
+            val jsonGet = JSONObject(data[0].toString())
+            val n = jsonGet.getInt(DATA_LIST_COUNT)
+            gameListTable.apply {
+                clear()
+                for (i in 0 until n) {
+                    add(KTextButton(text = jsonGet.getString(i.toString()), style = defaultStyle, skin = Scene2DSkin.defaultSkin).apply {
+                        onClick {
+                            joinRoom(jsonGet.getString(i.toString()))
+                        }
+                    })
+                    row()
+                }
+            }
+        }
+
+        val jsonSend = JSONObject()
+        app.socket.emit(EVENT_ROOMS_GET_LIST, jsonSend.toString())
+    }
+
+    private fun joinRoom(roomID : String) {
+        app.socket.once(EVENT_ROOMS_JOIN_SUCCESS) { args ->
+            val jsonGet = JSONObject(args[0].toString())
+            if (jsonGet.getBoolean(DATA_SUCCESS)) {
+                app.setScreen<GameScreen>()
+            }
+        }
+
+        val jsonSend = JSONObject()
+        jsonSend.put(DATA_ROOMS_JOIN_ROOMID, roomID)
+        app.socket.emit(EVENT_ROOMS_JOIN, jsonSend.toString())
+    }
+
+    private fun createRoom() {
+        app.socket.once(EVENT_ROOMS_CREATE_SUCCESS) { args ->
+            val jsonGet = JSONObject(args[0].toString())
+            if (jsonGet.getBoolean(DATA_SUCCESS)) {
+                app.setScreen<GameScreen>()
+            }
+        }
+
+        val jsonSend = JSONObject()
+        app.socket.emit(EVENT_ROOMS_CREATE, jsonSend.toString())
     }
 
 }
