@@ -16,6 +16,7 @@ const val EVENT_ROOMS_GET_KICK = "RoomGetKick"
 
 const val EVENT_GAME_GET_CELLS = "GameGetCells"
 const val EVENT_GAME_MOVE = "GameMove"
+const val EVENT_GAME_END = "GameEnd"
 
 
 

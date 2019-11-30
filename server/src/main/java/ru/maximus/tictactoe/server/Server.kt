@@ -217,6 +217,128 @@ class Server : Game() {
                             }
                         }
                     }
+
+                    var crossWin = false
+                    var noughtWin = false
+                    var draw = true
+
+                    //cross win check
+                    apply {
+                        for (y in 0 until 3) {
+                            var t = true
+                            for (x in 0 until 3) {
+                                if (cells[y * 3 + x] != DATA_CELL_CROSS) {
+                                    t = false
+                                }
+                            }
+                            if (t) {
+                                crossWin = true
+                                break
+                            }
+                        }
+                        for (x in 0 until 3) {
+                            var t = true
+                            for (y in 0 until 3) {
+                                if (cells[y * 3 + x] != DATA_CELL_CROSS) {
+                                    t = false
+                                }
+                            }
+                            if (t) {
+                                crossWin = true
+                                break
+                            }
+                        }
+                        for (i in 0 until 3) {
+                            var t = true
+                            if (cells[i * 4] != DATA_CELL_CROSS) {
+                                t = false
+                            }
+                            if (t) {
+                                crossWin = true
+                                break
+                            }
+                        }
+                        for (i in 0 until 3) {
+                            var t = true
+                            if (cells[i * 2 + 2] != DATA_CELL_CROSS) {
+                                t = false
+                            }
+                            if (t) {
+                                crossWin = true
+                                break
+                            }
+                        }
+                    }
+                    //nought win check
+                    apply {
+                        for (y in 0 until 3) {
+                            var t = true
+                            for (x in 0 until 3) {
+                                if (cells[y * 3 + x] != DATA_CELL_NOUGHT) {
+                                    t = false
+                                }
+                            }
+                            if (t) {
+                                noughtWin = true
+                                break
+                            }
+                        }
+                        for (x in 0 until 3) {
+                            var t = true
+                            for (y in 0 until 3) {
+                                if (cells[y * 3 + x] != DATA_CELL_NOUGHT) {
+                                    t = false
+                                }
+                            }
+                            if (t) {
+                                noughtWin = true
+                                break
+                            }
+                        }
+                        for (i in 0 until 3) {
+                            var t = true
+                            if (cells[i * 4] != DATA_CELL_NOUGHT) {
+                                t = false
+                            }
+                            if (t) {
+                                noughtWin = true
+                                break
+                            }
+                        }
+                        for (i in 0 until 3) {
+                            var t = true
+                            if (cells[i * 2 + 2] != DATA_CELL_NOUGHT) {
+                                t = false
+                            }
+                            if (t) {
+                                noughtWin = true
+                                break
+                            }
+                        }
+                    }
+                    //draw check
+                    apply {
+                        for (i in 0 until 9) {
+                            if (cells[i] == DATA_CELL_EMPTY) {
+                                draw = false
+                            }
+                        }
+                        if (crossWin || noughtWin) {
+                            draw = false
+                        }
+                    }
+
+                    if (crossWin || noughtWin || draw) {
+                        for (i in 0 until 9) {
+                            cells[i] = DATA_CELL_EMPTY
+                        }
+                        for (i in players) {
+                            sendCellsToPlayer(i)
+                        }
+
+                        isCross = true
+                        firstPlayerCross = !firstPlayerCross
+                    }
                 }
             }
         }

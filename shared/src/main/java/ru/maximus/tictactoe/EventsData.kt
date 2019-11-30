@@ -13,6 +13,10 @@ const val DATA_CELL_NOUGHT = 2
 
 const val DATA_GAME_POS = "pos"
 
+const val DATA_GAME_END_STATE_WIN = 0
+const val DATA_GAME_END_STATE_LOSE = 1
+const val DATA_GAME_END_STATE_DRAW = 2
+
 
 //
 
