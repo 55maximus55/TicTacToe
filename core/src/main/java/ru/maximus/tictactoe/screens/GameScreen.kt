@@ -151,6 +151,16 @@ class GameScreen(val stage: Stage, val app: App) : KtxScreen {
             }
             updateGameTable()
         }
+        app.socket.on(EVENT_GAME_END) { data ->
+            val jsonGet = JSONObject(data[0].toString())
+
+            Gdx.app.log("End", when(jsonGet.getInt(DATA_GAME_END_STATE)) {
+                DATA_GAME_END_STATE_WIN -> "Win"
+                DATA_GAME_END_STATE_LOSE -> "Lose"
+                DATA_GAME_END_STATE_DRAW -> "Draw"
+                else -> ""
+            })
+        }
     }
     private fun removeGameEvents() {
         app.socket.off(EVENT_GAME_GET_CELLS)

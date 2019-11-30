@@ -95,6 +95,15 @@ class Server : Game() {
                             }
 
                             players.add(client.sessionId)
+
+                            firstPlayerCross = true
+                            isCross = true
+                            for (i in 0 until 9) {
+                                cells[i] = DATA_CELL_EMPTY
+                            }
+                            for (i in players) {
+                                sendCellsToPlayer(i)
+                            }
                         }
                         players[client.sessionId]!!.inGame = true
                         players[client.sessionId]!!.roomID = roomID
@@ -233,7 +242,6 @@ class Server : Game() {
                             }
                             if (t) {
                                 crossWin = true
-                                break
                             }
                         }
                         for (x in 0 until 3) {
@@ -245,28 +253,25 @@ class Server : Game() {
                             }
                             if (t) {
                                 crossWin = true
-                                break
                             }
                         }
+                        var t = true
                         for (i in 0 until 3) {
-                            var t = true
-                            if (cells[i * 4] != DATA_CELL_CROSS) {
-                                t = false
-                            }
-                            if (t) {
-                                crossWin = true
-                                break
-                            }
-                        }
-                        for (i in 0 until 3) {
-                            var t = true
                             if (cells[i * 2 + 2] != DATA_CELL_CROSS) {
                                 t = false
                             }
-                            if (t) {
-                                crossWin = true
-                                break
+                        }
+                        if (t) {
+                            crossWin = true
+                        }
+                        t = true
+                        for (i in 0 until 3) {
+                            if (cells[i * 4] != DATA_CELL_CROSS) {
+                                t = false
                             }
+                        }
+                        if (t) {
+                            crossWin = true
                         }
                     }
                     //nought win check
@@ -280,7 +285,6 @@ class Server : Game() {
                             }
                             if (t) {
                                 noughtWin = true
-                                break
                             }
                         }
                         for (x in 0 until 3) {
@@ -292,28 +296,25 @@ class Server : Game() {
                             }
                             if (t) {
                                 noughtWin = true
-                                break
                             }
                         }
+                        var t = true
                         for (i in 0 until 3) {
-                            var t = true
-                            if (cells[i * 4] != DATA_CELL_NOUGHT) {
-                                t = false
-                            }
-                            if (t) {
-                                noughtWin = true
-                                break
-                            }
-                        }
-                        for (i in 0 until 3) {
-                            var t = true
                             if (cells[i * 2 + 2] != DATA_CELL_NOUGHT) {
                                 t = false
                             }
-                            if (t) {
-                                noughtWin = true
-                                break
+                        }
+                        if (t) {
+                            noughtWin = true
+                        }
+                        t = true
+                        for (i in 0 until 3) {
+                            if (cells[i * 4] != DATA_CELL_NOUGHT) {
+                                t = false
                             }
+                        }
+                        if (t) {
+                            noughtWin = true
                         }
                     }
                     //draw check
@@ -334,6 +335,44 @@ class Server : Game() {
                         }
                         for (i in players) {
                             sendCellsToPlayer(i)
+                        }
+
+                        when {
+                            crossWin -> {
+                                val jsonWin = JSONObject()
+                                jsonWin.put(DATA_GAME_END_STATE, DATA_GAME_END_STATE_WIN)
+                                val jsonLose = JSONObject()
+                                jsonLose.put(DATA_GAME_END_STATE, DATA_GAME_END_STATE_LOSE)
+
+                                if (firstPlayerCross) {
+                                    ioServer.getClient(players[0]).sendEvent(EVENT_GAME_END, jsonWin.toString())
+                                    ioServer.getClient(players[1]).sendEvent(EVENT_GAME_END, jsonLose.toString())
+                                } else {
+                                    ioServer.getClient(players[1]).sendEvent(EVENT_GAME_END, jsonWin.toString())
+                                    ioServer.getClient(players[0]).sendEvent(EVENT_GAME_END, jsonLose.toString())
+                                }
+                            }
+                            noughtWin -> {
+                                val jsonWin = JSONObject()
+                                jsonWin.put(DATA_GAME_END_STATE, DATA_GAME_END_STATE_WIN)
+                                val jsonLose = JSONObject()
+                                jsonLose.put(DATA_GAME_END_STATE, DATA_GAME_END_STATE_LOSE)
+
+                                if (firstPlayerCross) {
+                                    ioServer.getClient(players[1]).sendEvent(EVENT_GAME_END, jsonWin.toString())
+                                    ioServer.getClient(players[0]).sendEvent(EVENT_GAME_END, jsonLose.toString())
+                                } else {
+                                    ioServer.getClient(players[0]).sendEvent(EVENT_GAME_END, jsonWin.toString())
+                                    ioServer.getClient(players[1]).sendEvent(EVENT_GAME_END, jsonLose.toString())
+                                }
+                            }
+                            draw -> {
+                                val jsonS = JSONObject()
+                                jsonS.put(DATA_GAME_END_STATE, DATA_GAME_END_STATE_DRAW)
+                                for (i in players) {
+                                    ioServer.getClient(i).sendEvent(EVENT_GAME_END, jsonS.toString())
+                                }
+                            }
                         }
 
                         isCross = true
