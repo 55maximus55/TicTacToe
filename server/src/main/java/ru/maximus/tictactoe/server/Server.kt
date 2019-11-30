@@ -185,9 +185,29 @@ class Server : Game() {
             val jsonGet = JSONObject(data)
             val jsonSend = JSONObject()
 
-            try {
-                if (rooms.containsKey(players[client.sessionId]!!.roomID)) {
-                    rooms[players[client.sessionId]!!.roomID]!!.apply {
+            if (rooms.containsKey(players[client.sessionId]!!.roomID)) {
+                rooms[players[client.sessionId]!!.roomID]!!.apply {
+                    val isFirst = players[0] == client.sessionId
+
+                    var isMove = false
+
+                    if (firstPlayerCross) {
+                        if (isFirst && isCross) {
+                            isMove = true
+                        }
+                        if (!isFirst && !isCross) {
+                            isMove = true
+                        }
+                    } else {
+                        if (isFirst && !isCross) {
+                            isMove = true
+                        }
+                        if (!isFirst && isCross) {
+                            isMove = true
+                        }
+                    }
+
+                    if (isMove) {
                         if (cells[jsonGet.getInt(DATA_GAME_POS)] == DATA_CELL_EMPTY) {
                             cells[jsonGet.getInt(DATA_GAME_POS)] = if (isCross) DATA_CELL_CROSS else DATA_CELL_NOUGHT
                             isCross = !isCross
@@ -198,8 +218,6 @@ class Server : Game() {
                         }
                     }
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
     }

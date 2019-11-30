@@ -15,5 +15,6 @@ class Room {
         }
     }
     var isCross = true
+    var firstPlayerCross = true
 
 }
