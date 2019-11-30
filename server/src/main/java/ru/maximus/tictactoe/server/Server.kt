@@ -176,6 +176,46 @@ class Server : Game() {
                 }
             }
         }
+
+        ioServer.addEventListener(EVENT_GAME_GET_CELLS, String::class.java) { client, data, _ ->
+            val jsonGet = JSONObject(data)
+            sendCellsToPlayer(client.sessionId)
+        }
+        ioServer.addEventListener(EVENT_GAME_MOVE, String::class.java) { client, data, _ ->
+            val jsonGet = JSONObject(data)
+            val jsonSend = JSONObject()
+
+            try {
+                if (rooms.containsKey(players[client.sessionId]!!.roomID)) {
+                    rooms[players[client.sessionId]!!.roomID]!!.apply {
+                        if (cells[jsonGet.getInt(DATA_GAME_POS)] == DATA_CELL_EMPTY) {
+                            cells[jsonGet.getInt(DATA_GAME_POS)] = if (isCross) DATA_CELL_CROSS else DATA_CELL_NOUGHT
+                            isCross = !isCross
+
+                            for (i in players) {
+                                sendCellsToPlayer(i)
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun sendCellsToPlayer(id: UUID) {
+        val jsonSend = JSONObject()
+
+        if (rooms.containsKey(players[id]!!.roomID)) {
+            rooms[players[id]!!.roomID]!!.apply {
+                for (i in 0 until 9) {
+                    jsonSend.put(i.toString(), cells[i])
+                }
+            }
+        }
+
+        ioServer.getClient(id).sendEvent(EVENT_GAME_GET_CELLS, jsonSend.toString())
     }
 
     fun removePlayerFromRoom(id: UUID) {

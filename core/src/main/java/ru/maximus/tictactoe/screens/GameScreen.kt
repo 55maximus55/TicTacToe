@@ -15,22 +15,13 @@ class GameScreen(val stage: Stage, val app: App) : KtxScreen {
     lateinit var playersTable: Table
     val playersList = ArrayList<String>()
 
+    lateinit var gameTable: Table
+    val gameList = ArrayList<Int>()
+
     val view = table {
         setFillParent(true)
 
-        table {
-            textButton(text = "X", style = defaultStyle)
-            textButton(text = "0", style = defaultStyle)
-            textButton(text = "X", style = defaultStyle).cell(row = true)
-
-            textButton(text = "O", style = defaultStyle)
-            textButton(text = "X", style = defaultStyle)
-            textButton(text = "O", style = defaultStyle).cell(row = true)
-
-            textButton(text = "X", style = defaultStyle)
-            textButton(text = "0", style = defaultStyle)
-            textButton(text = "X", style = defaultStyle).cell(row = true)
-        }
+        gameTable = table()
         table {
             textButton(text = "Exit", style = defaultStyle).cell(row = true).apply {
                 onClick {
@@ -53,6 +44,8 @@ class GameScreen(val stage: Stage, val app: App) : KtxScreen {
         playersList.clear()
         updatePlayersTable()
         updatePlayersList()
+
+        updateGameList()
 
         createEvents()
     }
@@ -84,12 +77,15 @@ class GameScreen(val stage: Stage, val app: App) : KtxScreen {
 
             updatePlayersTable()
         }
-    }
 
+        createGameEvents()
+    }
     private fun removeEvents() {
         app.socket.off(EVENT_ROOMS_GET_KICK)
         app.socket.off(EVENT_ROOMS_PLAYER_JOINED)
         app.socket.off(EVENT_ROOMS_PLAYER_LEFT)
+
+        removeGameEvents()
     }
 
     private fun updatePlayersList() {
@@ -108,7 +104,6 @@ class GameScreen(val stage: Stage, val app: App) : KtxScreen {
         val jsonSend = JSONObject()
         app.socket.emit(EVENT_ROOMS_GET_PLAYER_LIST, jsonSend.toString())
     }
-
     private fun updatePlayersTable() {
         playersTable.apply {
             clear()
@@ -117,6 +112,54 @@ class GameScreen(val stage: Stage, val app: App) : KtxScreen {
                 row()
             }
         }
+    }
+
+    private fun updateGameList() {
+        val jsonSend = JSONObject()
+        app.socket.emit(EVENT_GAME_GET_CELLS, jsonSend.toString())
+    }
+    private fun updateGameTable() {
+        gameTable.apply {
+            clear()
+            for (y in 0 until 3) {
+                for (x in 0 until 3) {
+                    val text = when (gameList[y * 3 + x]) {
+                        DATA_CELL_EMPTY -> "#"
+                        DATA_CELL_CROSS -> "X"
+                        DATA_CELL_NOUGHT -> "O"
+                        else -> ""
+                    }
+                    add(KTextButton(text = text, style = defaultStyle, skin = Scene2DSkin.defaultSkin).apply {
+                        onClick {
+                            makeMove(y * 3 + x)
+                        }
+                    })
+                }
+                row()
+            }
+        }
+    }
+
+    private fun createGameEvents() {
+        app.socket.on(EVENT_GAME_GET_CELLS) { data ->
+            val jsonGet = JSONObject(data[0].toString())
+            val n = 0
+
+            gameList.clear()
+            for (i in 0 until 9) {
+                gameList.add(jsonGet.getInt(i.toString()))
+            }
+            updateGameTable()
+        }
+    }
+    private fun removeGameEvents() {
+        app.socket.off(EVENT_GAME_GET_CELLS)
+    }
+
+    private fun makeMove(pos: Int) {
+        val jsonSend = JSONObject()
+        jsonSend.put(DATA_GAME_POS, pos)
+        app.socket.emit(EVENT_GAME_MOVE, jsonSend.toString())
     }
 
 }

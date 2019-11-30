@@ -10,10 +10,12 @@ const val EVENT_ROOMS_JOIN = "RoomsJoin"
 const val EVENT_ROOMS_JOIN_SUCCESS = "RoomsJoinSuccess"
 
 //GameScreen
-const val EVENT_ROOMS_GET_PLAYER_LIST = "RoomPlayerыList"
+const val EVENT_ROOMS_GET_PLAYER_LIST = "RoomPlayerList"
 const val EVENT_ROOMS_PLAYER_JOINED = "RoomJoined"
-
 const val EVENT_ROOMS_GET_KICK = "RoomGetKick"
+
+const val EVENT_GAME_GET_CELLS = "GameGetCells"
+const val EVENT_GAME_MOVE = "GameMove"
 
 
 
