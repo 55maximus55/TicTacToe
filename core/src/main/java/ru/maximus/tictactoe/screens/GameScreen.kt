@@ -108,7 +108,12 @@ class GameScreen(val stage: Stage, val app: App) : KtxScreen {
         playersTable.apply {
             clear()
             for (i in playersList) {
-                add(Label(i, Scene2DSkin.defaultSkin, defaultStyle))
+                if (i == app.socket.id()) {
+                    add(Label("($i)", Scene2DSkin.defaultSkin, defaultStyle))
+                }
+                else {
+                    add(Label(i, Scene2DSkin.defaultSkin, defaultStyle))
+                }
                 row()
             }
         }
@@ -164,6 +169,7 @@ class GameScreen(val stage: Stage, val app: App) : KtxScreen {
     }
     private fun removeGameEvents() {
         app.socket.off(EVENT_GAME_GET_CELLS)
+        app.socket.off(EVENT_GAME_END)
     }
 
     private fun makeMove(pos: Int) {
