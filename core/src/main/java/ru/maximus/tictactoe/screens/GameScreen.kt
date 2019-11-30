@@ -80,6 +80,7 @@ class GameScreen(val stage: Stage, val app: App) : KtxScreen {
 
         createGameEvents()
     }
+
     private fun removeEvents() {
         app.socket.off(EVENT_ROOMS_GET_KICK)
         app.socket.off(EVENT_ROOMS_PLAYER_JOINED)
@@ -104,14 +105,14 @@ class GameScreen(val stage: Stage, val app: App) : KtxScreen {
         val jsonSend = JSONObject()
         app.socket.emit(EVENT_ROOMS_GET_PLAYER_LIST, jsonSend.toString())
     }
+
     private fun updatePlayersTable() {
         playersTable.apply {
             clear()
             for (i in playersList) {
                 if (i == app.socket.id()) {
                     add(Label("($i)", Scene2DSkin.defaultSkin, defaultStyle))
-                }
-                else {
+                } else {
                     add(Label(i, Scene2DSkin.defaultSkin, defaultStyle))
                 }
                 row()
@@ -123,6 +124,7 @@ class GameScreen(val stage: Stage, val app: App) : KtxScreen {
         val jsonSend = JSONObject()
         app.socket.emit(EVENT_GAME_GET_CELLS, jsonSend.toString())
     }
+
     private fun updateGameTable() {
         gameTable.apply {
             clear()
@@ -159,14 +161,23 @@ class GameScreen(val stage: Stage, val app: App) : KtxScreen {
         app.socket.on(EVENT_GAME_END) { data ->
             val jsonGet = JSONObject(data[0].toString())
 
-            Gdx.app.log("End", when(jsonGet.getInt(DATA_GAME_END_STATE)) {
-                DATA_GAME_END_STATE_WIN -> "Win"
-                DATA_GAME_END_STATE_LOSE -> "Lose"
-                DATA_GAME_END_STATE_DRAW -> "Draw"
-                else -> ""
+            stage.addActor(KWindow("Game end", skin = Scene2DSkin.defaultSkin, style = defaultStyle).apply {
+                textButton(when (jsonGet.getInt(DATA_GAME_END_STATE)) {
+                    DATA_GAME_END_STATE_WIN -> "Win"
+                    DATA_GAME_END_STATE_LOSE -> "Lose"
+                    DATA_GAME_END_STATE_DRAW -> "Draw"
+                    else -> ""
+                }, style = defaultStyle)
+                row()
+                textButton(text = "Ok", style = defaultStyle).apply {
+                    onClick {
+                        parent.parent.removeActor(parent)
+                    }
+                }
             })
         }
     }
+
     private fun removeGameEvents() {
         app.socket.off(EVENT_GAME_GET_CELLS)
         app.socket.off(EVENT_GAME_END)

@@ -80,6 +80,11 @@ class App : KtxGame<Screen>() {
             knob = skin["knob-v"]
             background = skin["line-h"]
         }
+        window {
+            titleFont = skin[defaultStyle]
+            titleFontColor = Color.BLACK
+            background = skin["window-border"]
+        }
     }
 
     override fun render() {
