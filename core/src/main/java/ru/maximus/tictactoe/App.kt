@@ -24,7 +24,7 @@ import ru.maximus.tictactoe.screens.*
 class App : KtxGame<Screen>() {
 
     val context = Context()
-    val socket = IO.socket("http://localhost:7777")
+    var socket = IO.socket("http://localhost:7777")
 
     override fun create() {
         enableKtxCoroutines(asynchronousExecutorConcurrencyLevel = 1)
@@ -37,20 +37,20 @@ class App : KtxGame<Screen>() {
             bindSingleton(this@App)
             Scene2DSkin.defaultSkin = inject()
 
+            bindSingleton(SelectServerScreen(inject(), inject()))
             bindSingleton(MainMenuScreen(inject(), inject()))
             bindSingleton(GamesListScreen(inject(), inject()))
             bindSingleton(SettingsScreen(inject(), inject()))
             bindSingleton(GameScreen(inject(), inject()))
         }
 
+        addScreen(context.inject<SelectServerScreen>())
         addScreen(context.inject<MainMenuScreen>())
         addScreen(context.inject<GamesListScreen>())
         addScreen(context.inject<SettingsScreen>())
         addScreen(context.inject<GameScreen>())
 
-        setScreen<MainMenuScreen>()
-
-        socket.connect()
+        setScreen<SelectServerScreen>()
     }
 
     fun createSkin(atlas: TextureAtlas): Skin = skin(atlas) { skin ->
@@ -85,10 +85,6 @@ class App : KtxGame<Screen>() {
             titleFontColor = Color.BLACK
             background = skin["window-border"]
         }
-    }
-
-    override fun render() {
-        super.render()
     }
 
     override fun resize(width: Int, height: Int) {
